@@ -11,6 +11,8 @@ function onOpen() {
       .addItem('2. Clasificar por Edad/Peso', 'clasificarLevantadores')
       .addSeparator()
       .addItem('3. Generar Guerra de Clanes', 'generarRankingGremios')
+      .addSeparator()
+      .addItem('4. Guardar Torneo en Historial', 'guardarEnHistorial')
       .addToUi();
 }
 
