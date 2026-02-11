@@ -1,32 +1,30 @@
-El Hechizo de Ranking de Gremios (Data Analytics)
-Este es el script más avanzado. Crea una hoja nueva llamada "Guerra de Clanes" y te dice qué equipo es el más fuerte y cuál es el más arriesgado (basado en la tasa de fallos).
-
-Métricas que calcula:
-
-Promedio Total: Fuerza bruta del equipo.
-
-Tasa de Fallo: ¿Cuántos intentos desperdician? (Lore: Los Iron Conjurers deberían tener una tasa alta).
-
-JavaScript
-function 3_generarRankingGremios() {
+* ------------------------------------------------------------------
+ * HECHIZO 3: GUERRA DE CLANES
+ * Genera la hoja de estadísticas en una nueva pestaña.
+ * ------------------------------------------------------------------
+ */
+function generarRankingGremios() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getActiveSheet();
-  const data = sheet.getDataRange().getValues();
+  // Usamos la primera hoja siempre como origen de datos
+  const dataSheet = ss.getSheets()[0]; 
+  const data = dataSheet.getDataRange().getValues();
   
-  // Objeto para acumular estadísticas por equipo
   let guildStats = {};
   
   // Empezamos en i=1 para saltar encabezados
   for (let i = 1; i < data.length; i++) {
-    let team = data[i][7]; // Columna H: Equipo
-    let total = data[i][17]; // Columna R: Total (Calculado en script 1)
+    let team = data[i][7]; // Columna H (índice 7) es Equipo
+    let total = data[i][17]; // Columna R (índice 17) es Total
     
-    // Contar intentos fallidos en esta fila (SQ, BP, DL) columnas 8 a 16
+    if (!team) continue; // Saltar filas sin equipo
+
     let attempts = 0;
     let fails = 0;
+    // Columnas de intentos (8 a 16)
     for (let j = 8; j <= 16; j++) {
       let val = data[i][j];
-      if (val !== "") { // Si no está vacío
+      // Contamos como intento si no está vacío y no es null
+      if (val !== "" && val !== null) { 
         attempts++;
         if (val < 0) fails++;
       }
@@ -41,48 +39,56 @@ function 3_generarRankingGremios() {
       };
     }
     
-    // Solo sumamos al promedio si hizo total (evita castigar por lesiones graves)
-    // O puedes incluir los 0 para castigar a los Daily Max Zealots
     guildStats[team].lifters++;
-    guildStats[team].sumTotal += total;
+    // Sumamos el total solo si es número (para evitar errores con celdas vacías)
+    guildStats[team].sumTotal += (typeof total === 'number' ? total : 0);
     guildStats[team].totalAttempts += attempts;
     guildStats[team].totalFails += fails;
   }
 
-  // --- PREPARAR SALIDA ---
+  // Preparar tabla de salida
   let output = [];
   output.push(["Ranking", "Equipo / Gremio", "Total Promedio (kg)", "Tasa de Fallos (%)", "Descripción Táctica"]);
 
-  let rank = 1;
-  // Convertir objeto a array para ordenar
+  // Convertir objeto a array y ordenar por promedio descendente
   let sortedGuilds = Object.keys(guildStats).map(key => {
     return { name: key, ...guildStats[key] };
-  }).sort((a, b) => (b.sumTotal / b.lifters) - (a.sumTotal / a.lifters)); // Ordenar por promedio descendente
+  }).sort((a, b) => {
+    let avgA = a.lifters > 0 ? a.sumTotal / a.lifters : 0;
+    let avgB = b.lifters > 0 ? b.sumTotal / b.lifters : 0;
+    return avgB - avgA;
+  });
 
+  let rank = 1;
   sortedGuilds.forEach(guild => {
-    let avgTotal = (guild.sumTotal / guild.lifters).toFixed(1);
-    let failRate = ((guild.totalFails / guild.totalAttempts) * 100).toFixed(1);
+    let avgTotal = (guild.lifters > 0) ? (guild.sumTotal / guild.lifters).toFixed(1) : 0;
+    let failRate = 0;
+    if (guild.totalAttempts > 0) {
+       failRate = ((guild.totalFails / guild.totalAttempts) * 100).toFixed(1);
+    }
     
-    // Generar descripción basada en datos (Lore dinámico)
+    // Lore dinámico
     let desc = "";
-    if (failRate > 30) desc = "⚠️ Arriesgados (High Risk)";
-    else if (failRate < 10) desc = "🛡️ Conservadores (Safe)";
+    if (failRate > 30) desc = "⚠️ Arriesgados (High Risk)"; // Iron Conjurers o Zealots suelen caer aquí
+    else if (failRate < 10) desc = "🛡️ Conservadores (Safe)"; // Linear Legion
     else desc = "⚖️ Equilibrados";
 
     output.push([rank++, guild.name, avgTotal, failRate + "%", desc]);
   });
 
-  // --- CREAR/ACTUALIZAR HOJA DE RANKING ---
+  // Crear o actualizar hoja "Guerra de Clanes"
   let rankingSheet = ss.getSheetByName("Guerra de Clanes");
   if (!rankingSheet) {
     rankingSheet = ss.insertSheet("Guerra de Clanes");
   } else {
-    rankingSheet.clear(); // Limpiar datos viejos
+    rankingSheet.clear();
   }
   
+  // Escribir datos
   rankingSheet.getRange(1, 1, output.length, 5).setValues(output);
   
-  // Dar formato bonito
-  rankingSheet.getRange(1, 1, 1, 5).setFontWeight("bold").setBackground("#d9d9d9");
+  // Estilo visual
+  let headerRange = rankingSheet.getRange(1, 1, 1, 5);
+  headerRange.setFontWeight("bold").setBackground("#4a86e8").setFontColor("white");
   rankingSheet.autoResizeColumns(1, 5);
 }
