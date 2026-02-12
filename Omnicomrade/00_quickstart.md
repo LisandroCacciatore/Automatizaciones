@@ -1,5 +1,5 @@
 # START HERE - Guía de Acción Inmediata
-## IronSystems Tournament Manager - Primeros Pasos
+## Omnicomrade Tournament Manager - Primeros Pasos
 
 **Tiempo estimado:** 2-3 horas para tener algo funcional
 **Objetivo:** Al final de este documento, tendrás un prototipo mínimo funcionando
