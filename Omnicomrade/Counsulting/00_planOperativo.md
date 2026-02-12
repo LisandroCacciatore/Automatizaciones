@@ -360,17 +360,17 @@ https://lisandrocacciatore.com/sitemap.xml
 Al domingo 16/02 a las 20:00 tenés que poder marcar TODO esto:
 
 ### Setup Técnico
-- [ ] Carpetas creadas: /blog/validacion/, /blog/lesiones/, /blog/automatizacion/, /recursos/
-- [ ] Archivos movidos a carpetas correctas
-- [ ] Rutas de navegación actualizadas (../../ en vez de ../)
-- [ ] Links internos funcionando
+- [X] Carpetas creadas: /blog/validacion/, /blog/lesiones/, /blog/automatizacion/, /recursos/
+- [X] Archivos movidos a carpetas correctas
+- [X] Rutas de navegación actualizadas (../../ en vez de ../)
+- [X] Links internos funcionando
 
 ### Contenido
-- [ ] Meta tags optimizados en 5 artículos
-- [ ] Schema Article agregado a 5 artículos
-- [ ] Canonical URLs correctas
-- [ ] sobre-mi.html creado
-- [ ] contacto.html creado
+- [X] Meta tags optimizados en 5 artículos
+- [X] Schema Article agregado a 5 artículos
+- [X] Canonical URLs correctas
+- [X] sobre-mi.html creado
+- [X] contacto.html creado
 - [ ] Formulario de contacto funcional
 
 ### Deploy
